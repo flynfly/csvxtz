@@ -101,4 +101,4 @@ def main():
 
 if __name__=='__main__':
     main()
-    print("2 hotfix")
+    print("2 0 0 hotfix")
