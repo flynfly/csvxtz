@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'untitled0.ui'
+# Form implementation generated from reading ui file 'untitledtest.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -78,10 +78,8 @@ class Ui_mainWindow(object):
         self.menubar.addAction(self.menu_6.menuAction())
 
         self.retranslateUi(mainWindow)
-        self.menu_openfile.triggered.connect(mainWindow.openfile)
-        self.actionFFT.triggered.connect(mainWindow.fft_data)
-        self.actionbandfilt.triggered.connect(mainWindow.bandpassfiltAndShow)
-        self.listWidget.itemDoubleClicked.connect(mainWindow.on_listWidgetItemDoubleClicked)
+        self.menu_openfile.triggered.connect(mainWindow.hide)
+        self.listWidget.itemDoubleClicked['QListWidgetItem*'].connect(mainWindow.repaint)
         QtCore.QMetaObject.connectSlotsByName(mainWindow)
 
     def retranslateUi(self, mainWindow):

@@ -11,6 +11,7 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import sys
 import untitled0
+
 from PyQt5 import QtCore, QtGui,QtWidgets
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QFileDialog
 from PyQt5.QtCore import *
@@ -20,41 +21,52 @@ from PyQt5.QtWidgets import *
 import requests
 from scipy.fftpack import fft, fftshift, ifft
 from scipy.fftpack import fftfreq
+from scipy import signal
 
-dir_name=""
+
 
 #创建一个matplotlib图形绘制类
 class MyFigure(FigureCanvas):
-    def __init__(self,width=5, height=4, dpi=100):
-        #第一步：创建一个创建Figure
+    def __init__(self,width=10, height=6, dpi=100):
         self.fig = Figure(figsize=(width, height), dpi=dpi)
-        #第二步：在父类中激活Figure窗口
-        super(MyFigure,self).__init__(self.fig) #此句必不可少，否则不能显示图形
-        #第三步：创建一个子图，用于绘制图形用，111表示子图编号，如matlab的subplot(1,1,1)
+
+        super(MyFigure,self).__init__(self.fig)
         self.axe=self.fig.add_subplot
 
 
+    def updateGeometry(self):
+        super().updateGeometry()
+        self.fig.tight_layout()
 
 
 
 class MainWin(QMainWindow):
+    dir_name = ""
+    samp_freq = 1259.259  # 采样率
+    fft_num=0
+    
     def __init__(self, parent=None):
         super(QtWidgets.QMainWindow, self).__init__(parent)
         self.ui = untitled0.Ui_mainWindow()
         self.ui.setupUi(self)
 
-        self.F0 = MyFigure(width=3, height=2, dpi=100)
+        self.F0 = MyFigure(width=6, height=4, dpi=100)
+
         for i in range(1,11):
-            self.F0.axe(10,1,i)
+            self.F0.axe(10,1,i).set_title("channel %d"%i)
         self.gridlayout = QGridLayout(self.ui.groupBox)  # 继承容器groupBox
         self.gridlayout.addWidget(self.F0, 0, 1)
 
+        self.ui.centralwidget.resizeEvent = self.F0.updateGeometry()
 
-    def plottingEMG(self,emgdata):
+    def plottingEMG(self,tempcsv):
 
         self.F = MyFigure(width=3, height=2, dpi=100)
         for i in range(1,11):
-            self.F.axe(10,1,i).plot(emgdata["X [s]"], 1000 * emgdata["Avanti sensor %d: EMG %d [V]" % (i, i)])
+            self.F.axe(10, 1, i).set_title("channel %d" % i)
+            self.F.axe(10,1,i).plot(tempcsv["X [s]"], 1000 * tempcsv["Avanti sensor %d: EMG %d [V]" % (i, i)])
+
+
         self.gridlayout.addWidget(self.F, 0, 1)
 
     def delImage(self):
@@ -68,12 +80,12 @@ class MainWin(QMainWindow):
         if file_name:
             print("选择的数据文件："+file_name)
             self.showplot(file_name)
+            self.ui.listWidget.addItem(file_name)
         else:
             print("未选择")
             self.delImage()
 
     def showplot(self,filename):
-        global dir_name
         raw = pd.read_csv(filename, encoding="unicode_escape", header=494)[["X [s]",
                                                                              "Avanti sensor 1: EMG 1 [V]",
                                                                              "Avanti sensor 2: EMG 2 [V]",
@@ -88,10 +100,71 @@ class MainWin(QMainWindow):
         self.plottingEMG(raw)
 
         dirpos = filename.rfind('/')
-        dir_name = filename[:dirpos + 1]
-        raw.to_csv(dir_name + "csvtemp.csv")
+        self.dir_name = filename[:dirpos + 1]
+        raw.to_csv(self.dir_name + "csvtemp.csv")
 
         print("show over")
+
+
+
+    def bandpassfiltAndShow(self):
+        items1 = ('20', '50', '100')
+        items2 = ('200', '500', '1000')
+        item1, ok1 = QInputDialog.getItem(self, "滤波参数", '截止频率1', items1, 0, False)
+        item2, ok2 = QInputDialog.getItem(self, "滤波参数", '截止频率2', items2, 0, False)
+        if ok1 and ok2 and item1 and item2:
+            f1 = int(item1)
+            f2 = int(item2)
+        raw = pd.read_csv(self.dir_name + "csvtemp.csv", encoding="unicode_escape", header=0)
+
+        w1 = 2 * f1 / self.samp_freq
+        w2 = 2 * f2 / self.samp_freq
+        b, a = signal.butter(8, [w1, w2], 'bandpass')  # 配置滤波器 8 表示滤波器的阶数
+        for i in range(1, 10):
+            raw["Avanti sensor %d: EMG %d [V]" % (i, i)] = signal.filtfilt(b, a,
+                                                                           raw["Avanti sensor %d: EMG %d [V]" % (i, i)])
+
+        self.plottingEMG(raw)
+
+    def dirrect_power(self):
+
+        ss0 = pd.read_csv(self.dir_name + "fftdata.csv")
+        ss = ss0.to_numpy()
+
+        ps = np.zeros((self.fft_num, 10))
+        self.F = MyFigure(width=3, height=2, dpi=100)
+        for i in range(1, 11):
+            ps[:, i - 1] = ss[:, i - 1] ** 2 / self.fft_num
+            self.F.axe(10, 1, i).set_title("channel %d" % i)
+            self.F.axe(10, 1, i).plot(20 * np.log10(ps[:self.fft_num // 2, i - 1]))
+
+        self.gridlayout.addWidget(self.F, 0, 1)
+        pd.DataFrame(ss).to_csv(self.dir_name + "fftdata.csv")
+
+
+    def fft_data(self):
+        items = ('200', '500', '1000')
+        item, ok = QInputDialog.getItem(self, "FFT参数", '点数', items, 0, False)
+        if ok and item:
+            self.fft_num=int(item)
+
+        data = pd.read_csv(self.dir_name + "csvtemp.csv")
+        npdata = data.to_numpy()
+
+        ss = np.zeros((self.fft_num, 10))
+        self.F = MyFigure(width=3, height=2, dpi=100)
+        for i in range(1, 11):
+            ss[:, i - 1] = fft(npdata[:, i+1], self.fft_num)
+            ss[:, i - 1] = np.abs(ss[:, i - 1])
+            self.F.axe(10, 1, i).set_title("channel %d" % i)
+            self.F.axe(10, 1, i).plot(20 * np.log10(ss[:self.fft_num // 2, i - 1]))
+
+        self.gridlayout.addWidget(self.F, 0, 1)
+        pd.DataFrame(ss).to_csv(self.dir_name + "fftdata.csv")
+
+    def on_listWidgetItemDoubleClicked(self, item):
+        print("Double clicked item:", item.text())
+        self.showplot(item.text())
 
 def main():
     myapp = QApplication(sys.argv)
@@ -101,5 +174,4 @@ def main():
 
 if __name__=='__main__':
     main()
-    print("2 0 0 1 hotfix")
-    print("2 0 0 2 hotfix")
+
