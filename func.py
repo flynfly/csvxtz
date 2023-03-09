@@ -10,7 +10,7 @@ from matplotlib.figure import Figure
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import sys
-import untitled0
+import appliedUI
 
 from PyQt5 import QtCore, QtGui,QtWidgets
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QFileDialog
@@ -32,11 +32,9 @@ class MyFigure(FigureCanvas):
 
         super(MyFigure,self).__init__(self.fig)
         self.axe=self.fig.add_subplot
+        # self.fig.tight_layout()
 
 
-    def updateGeometry(self):
-        super().updateGeometry()
-        self.fig.tight_layout()
 
 
 
@@ -47,17 +45,17 @@ class MainWin(QMainWindow):
     
     def __init__(self, parent=None):
         super(QtWidgets.QMainWindow, self).__init__(parent)
-        self.ui = untitled0.Ui_mainWindow()
+        self.ui = appliedUI.Ui_mainWindow()
         self.ui.setupUi(self)
 
-        self.F0 = MyFigure(width=6, height=4, dpi=100)
+        self.F0 = MyFigure(width=6, height=4, dpi=100   )
 
         for i in range(1,11):
             self.F0.axe(10,1,i).set_title("channel %d"%i)
+            # self.F0.fig.tight_layout()
         self.gridlayout = QGridLayout(self.ui.groupBox)  # 继承容器groupBox
         self.gridlayout.addWidget(self.F0, 0, 1)
 
-        self.ui.centralwidget.resizeEvent = self.F0.updateGeometry()
 
     def plottingEMG(self,tempcsv):
 
@@ -65,7 +63,7 @@ class MainWin(QMainWindow):
         for i in range(1,11):
             self.F.axe(10, 1, i).set_title("channel %d" % i)
             self.F.axe(10,1,i).plot(tempcsv["X [s]"], 1000 * tempcsv["Avanti sensor %d: EMG %d [V]" % (i, i)])
-
+            # self.F.fig.tight_layout()
 
         self.gridlayout.addWidget(self.F, 0, 1)
 
@@ -127,20 +125,43 @@ class MainWin(QMainWindow):
         self.plottingEMG(raw)
 
     def dirrect_power(self):
-
         ss0 = pd.read_csv(self.dir_name + "fftdata.csv")
         ss = ss0.to_numpy()
 
         ps = np.zeros((self.fft_num, 10))
         self.F = MyFigure(width=3, height=2, dpi=100)
         for i in range(1, 11):
-            ps[:, i - 1] = ss[:, i - 1] ** 2 / self.fft_num
+            ps[:, i - 1] = ss[:, i] ** 2 / self.fft_num
             self.F.axe(10, 1, i).set_title("channel %d" % i)
             self.F.axe(10, 1, i).plot(20 * np.log10(ps[:self.fft_num // 2, i - 1]))
 
         self.gridlayout.addWidget(self.F, 0, 1)
-        pd.DataFrame(ss).to_csv(self.dir_name + "fftdata.csv")
 
+    def cor_power(self):
+        data = pd.read_csv(self.dir_name + "csvtemp.csv")
+        npdata = data.to_numpy()
+
+        cor_x=cor_X=ps_cor = np.zeros((self.fft_num, 10))
+        self.F = MyFigure(width=3, height=2, dpi=100)
+        for i in range(1, 11):
+            cor_x[:, i - 1] = np.correlate(npdata[:, i + 1], npdata[:, i + 1], 'same')
+            cor_X[:, i - 1] = fft(cor_x[:, i - 1], self.fft_num)
+            ps_cor[:, i - 1] = np.abs(cor_X[:, i - 1])
+            ps_cor[:, i - 1] = ps_cor[:, i - 1] / np.max(ps_cor[:, i - 1])
+            self.F.axe(10, 1, i).set_title("channel %d" % i)
+            self.F.axe(10, 1, i).plot(20 * np.log10(ps_cor[:self.fft_num // 2],i-1))
+        self.gridlayout.addWidget(self.F, 0, 1)
+
+    def cut_data(self):
+        low_0=min(self.ui.horizontalSlider.value(),self.ui.horizontalSlider_2.value())
+        hign_99=max(self.ui.horizontalSlider.value(),self.ui.horizontalSlider_2.value())
+        raw = pd.read_csv(self.dir_name + "csvtemp.csv")
+        total_size=raw.shape[0]
+        cut=raw.loc[int(total_size*low_0/99):int(total_size*hign_99/99),:]
+
+        cut.to_csv(self.dir_name + "cuttemp.csv")
+        print("done")
+        self.plottingEMG(cut)
 
     def fft_data(self):
         items = ('200', '500', '1000')

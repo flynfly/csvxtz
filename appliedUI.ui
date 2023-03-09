@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1146</width>
-    <height>647</height>
+    <width>1237</width>
+    <height>683</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,10 +30,10 @@
    <widget class="QWidget" name="widget" native="true">
     <property name="geometry">
      <rect>
-      <x>220</x>
+      <x>310</x>
       <y>10</y>
-      <width>931</width>
-      <height>561</height>
+      <width>911</width>
+      <height>571</height>
      </rect>
     </property>
     <widget class="QGroupBox" name="groupBox">
@@ -41,8 +41,8 @@
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>911</width>
-       <height>541</height>
+       <width>891</width>
+       <height>551</height>
       </rect>
      </property>
      <property name="title">
@@ -55,7 +55,7 @@
      <rect>
       <x>10</x>
       <y>30</y>
-      <width>201</width>
+      <width>291</width>
       <height>541</height>
      </rect>
     </property>
@@ -79,7 +79,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1146</width>
+     <width>1237</width>
      <height>23</height>
     </rect>
    </property>
@@ -114,6 +114,8 @@
     </property>
     <addaction name="actionFFT"/>
     <addaction name="actionbandfilt"/>
+    <addaction name="action_2"/>
+    <addaction name="action_3"/>
    </widget>
    <widget class="QMenu" name="menu_6">
     <property name="title">
@@ -162,6 +164,16 @@
     <string>bandfilt</string>
    </property>
   </action>
+  <action name="action_2">
+   <property name="text">
+    <string>直接功率谱</string>
+   </property>
+  </action>
+  <action name="action_3">
+   <property name="text">
+    <string>相关功率谱</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections>
@@ -194,6 +206,38 @@
     <hint type="destinationlabel">
      <x>572</x>
      <y>323</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_2</sender>
+   <signal>triggered()</signal>
+   <receiver>mainWindow</receiver>
+   <slot>hide()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>618</x>
+     <y>341</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_3</sender>
+   <signal>triggered()</signal>
+   <receiver>mainWindow</receiver>
+   <slot>hide()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>618</x>
+     <y>341</y>
     </hint>
    </hints>
   </connection>
