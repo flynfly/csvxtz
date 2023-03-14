@@ -1,10 +1,11 @@
 # coding:utf-8
+#by：谢天哲
 import time
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib
-matplotlib.use("Qt5Agg")  # 声明使用QT5
+
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
@@ -23,7 +24,7 @@ from scipy.fftpack import fft, fftshift, ifft
 from scipy.fftpack import fftfreq
 from scipy import signal
 
-
+matplotlib.use("Qt5Agg")  # 声明使用QT5
 
 #创建一个matplotlib图形绘制类
 class MyFigure(FigureCanvas):
@@ -33,8 +34,6 @@ class MyFigure(FigureCanvas):
         super(MyFigure,self).__init__(self.fig)
         self.axe=self.fig.add_subplot
         # self.fig.tight_layout()
-
-
 
 
 
@@ -71,7 +70,6 @@ class MainWin(QMainWindow):
         self.gridlayout.addWidget(self.F0, 0, 1)
 
     def openfile(self):
-
         options = QFileDialog.Options()
         options |= QFileDialog.ReadOnly
         file_name, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "", "All Files (*);;csv Data (*.csv)", options=options)
@@ -103,8 +101,6 @@ class MainWin(QMainWindow):
 
         print("show over")
 
-
-
     def bandpassfiltAndShow(self):
         items1 = ('20', '50', '100')
         items2 = ('200', '500', '1000')
@@ -121,7 +117,6 @@ class MainWin(QMainWindow):
         for i in range(1, 10):
             raw["Avanti sensor %d: EMG %d [V]" % (i, i)] = signal.filtfilt(b, a,
                                                                            raw["Avanti sensor %d: EMG %d [V]" % (i, i)])
-
         self.plottingEMG(raw)
 
     def dirrect_power(self):
