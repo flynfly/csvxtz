@@ -14,82 +14,63 @@ matplotlib.use('TKAgg')
 from scipy.signal import filtfilt, iirnotch, freqz
 
 
-def signal_filter(signal, sampling_rate=1000, lowcut=None, highcut=None, method='', order=2, window_size='default',
-                  powerline=50, show=False, f0=50, Q=45):
+def signal_filter(signal, sampling_rate=1000, lowcut=None, highcut=None, method='',
+                  order=2, numtaps=81, window_type='hamming',show=False, f0=50, Q=45, freqz=False):
     """
+    Filter the input signal using the specified method and parameters.
 
     Parameters
     ----------
-    signal : Union[list, np.array, pd]
-        单通道信号
-    sampling_rate : int
-        采样率
-    lowcut : float
-        Lower cutoff frequency in Hz. The default is ``None``.
-    highcut : float
-        Upper cutoff frequency in Hz. The default is ``None``.
-    method : str
-        option ['butterworth', 'fir']
-    order : int
-        default order 2
-    window_size : int
-        Only used if ``method`` is ``"savgol"``. The length of the filter window (i.e. the number of
-        coefficients). Must be an odd integer. If default, will be set to the sampling rate
-        divided by 10 (101 if the sampling rate is 1000 Hz).
-    powerline : int
-        工频干扰
-        only used if methond = 'powerline'
-    show :  bool
-        plot filtered data
-
-    f0 : int
-        only work when method = 'iirnotch'
-
-    Q : int
-        quality factor
+    signal : ndarray
+        Input signal to be filtered.
+    sampling_rate : int, optional
+        The sampling rate of the signal in Hz, default is 1000 Hz.
+    lowcut : float, optional
+        The lower cutoff frequency for the filter, default is None (no lowcut).
+    highcut : float, optional
+        The higher cutoff frequency for the filter, default is None (no highcut).
+    method : str, optional
+        The filtering method to use, options include 'iir', 'fir', 'iirnotch', etc., default is an empty string.
+    order : int, optional
+        The order of the filter, default is 2.
+    numtaps : int, optional
+        The number of filter taps for FIR filters, default is 81.
+    window_type : str, optional
+        The type of window to use for FIR filters, default is 'hamming'.
+    show : bool, optional
+        If True, plot the filtered signal, default is False (no plot).
+    f0 : int, optional
+        The frequency for the notch filter, default is 50 Hz.
+    Q : int, optional
+        The quality factor for the notch filter, default is 45.
+    freqz : bool, optional
+        If True, plot the frequency response and phase response, default is False (no plot).
 
     Returns
     -------
-    filtered : float32
-
-    Examples
-    -------
-        TODO ：添加使用example
-
+    filtered : ndarray
+        The filtered signal using the specified method and parameters.
     """
     method = method.lower()  # 将 method str 转成小写
 
-    if method in ['powerline']:
-        filtered = _signal_filter_powerline(signal, sampling_rate, powerline)
+    if method in ['butter', 'butterworth']:
+        filtered = _signal_filter_butterworth(signal, sampling_rate, lowcut, highcut, order,freqz)
+    elif method in ['butter_ba', 'butterworth_ba']:
+        filtered = _signal_filter_butterworth_ba(signal, sampling_rate, lowcut, highcut, order, freqz)
+    elif method in ['fir']:
+        filtered = _signal_filter_fir(signal, sampling_rate, lowcut, highcut, numtaps, window_type,freqz=False)
+    elif method in ['iirnotch']:
+        filtered = _signal_filter_iirnotch(signal, sampling_rate, f0, Q, freqz)
 
     else:
-        if method in ['butter', 'butterworth']:
-            filtered = _signal_filter_butterworth(signal, sampling_rate, lowcut, highcut, order)
-        elif method in ['butter_ba', 'butterworth_ba']:
-            filtered = _signal_filter_butterworth_ba(signal, sampling_rate, lowcut, highcut, order)
-        elif method in ['fir']:
-            filtered = _signal_filter_fir(signal, sampling_rate, lowcut, highcut, window_size='default')
-        elif method in ['iirnotch']:
-            filtered = _signal_filter_iirnotch(signal, sampling_rate, f0, Q)
-
-        else:
-            raise ValueError(
-                "ERROR: signal_filter():'method' should be one of 'butterworth',"
-                "'butterworth_ba', 'fir' or 'powerline'"
-            )
+        raise ValueError(
+            "ERROR: signal_filter():'method' should be one of 'butterworth',"
+            "'butterworth_ba', 'fir' or 'powerline'"
+        )
 
     if show is True:
-        if signal.shape[0] > 2000:
-            signal_len = 2000
-        else:
-            signal_len = signal.shape[0]
+        _signal_filtered_plot(signal, filtered)
 
-        fig, axes = plt.subplots(signal.shape[1], 1)
-        for i in range(0, signal.shape[1]):
-            axes[i].plot(signal[0:signal_len, i], color='lightgrey')
-            axes[i].plot(filtered[0:signal_len, i], color='blue', alpha=0.9)
-            axes[i].set_title("EMG Channel {}".format(i + 1))
-        plt.show(block=True)
     return filtered
 
 
@@ -114,31 +95,37 @@ def _signal_filter_powerline(signal, sampling_rate, powerline=50):
 # iirnotch
 # =============================================================================
 
-def _signal_filter_iirnotch(signal, sampling_rate, f0, Q=45, frequency_response=False):
+def _signal_filter_iirnotch(signal, sampling_rate, f0, Q, freqz=False):
     """
-    second order narrow bandwitch notch filter
+    Apply a second-order narrow bandwidth notch filter to the input signal.
 
     Parameters
     ----------
-    signal : float 64
+    signal : ndarray
+        Input signal to be filtered, with dtype float64.
     sampling_rate : int
+        The sampling rate of the signal in Hz.
     f0 : int
-        remove freq 待去除的频率
+        The frequency to be removed (notch frequency) from the signal.
     Q : int
-        quality,
+        The quality factor of the notch filter, representing the bandwidth.
+        45/55/65 recommended
 
     Returns
     -------
-    filtered : float 64
-        notch filtered data
+    filtered : ndarray
+        The signal after applying the notch filter.
 
+    Optional
+    --------
+    freqz : bool, default=False
+        If True, plot the frequency response of the filter.
     """
     w0 = f0 / (sampling_rate / 2)  # normalized sampling frequency
     b, a = iirnotch(w0, Q, sampling_rate)
 
-    if frequency_response is True:
+    if freqz is True:
         _signal_filter_freqz(b, a)
-        # os.system("pause")
 
     filtered = filtfilt(b, a, signal, axis=-1)
 
@@ -146,68 +133,49 @@ def _signal_filter_iirnotch(signal, sampling_rate, f0, Q=45, frequency_response=
 
 
 # =============================================================================
-# Butterworth
+# IIR Filter : Butterworth
 # =============================================================================
 
-def _signal_filter_butterworth(signal, sampling_rate, lowcut, highcut, order=4):
+def _signal_filter_butterworth(signal, sampling_rate, lowcut, highcut, order=4,freqz=False):
     """ 默认 4阶 butterworth 滤波 """
     freqs, filter_type = _signal_filter_sanitize(lowcut, highcut, sampling_rate, normalize=False)
     sos = scipy.signal.butter(order, freqs, btype=filter_type, output='sos', fs=sampling_rate)
-    filtered = scipy.signal.sosfiltfilt(sos, signal, padtype=None) # TODO : change padtype
+
+    if freqz is True:
+        _signal_filter_freqz(b_fir=sos)
+
+    filtered = scipy.signal.sosfiltfilt(sos, signal, padtype=None)  # TODO : change padtype
     return filtered
 
 
-def _signal_filter_butterworth_ba(signal, sampling_rate, lowcut, highcut, order):
-    """ 通过 b a 计算 butterworth 滤波 参数 """
+def _signal_filter_butterworth_ba(signal, sampling_rate, lowcut, highcut, order, freqz=False):
+    """ 通过 b a 计算 butterworth 滤波参数进行滤波 """
     freqs, filter_type = _signal_filter_sanitize(lowcut, highcut, sampling_rate, normalize=False)
     b, a = scipy.signal.butter(order, freqs, btype=filter_type, output='ba', fs=sampling_rate)
+
+    if freqz is True:
+        _signal_filter_freqz(b, a)
+
     filtered = filtfilt(b, a, signal, method='gust', axis=1)
     return filtered
 
 
 # =============================================================================
-# fir filter
+# Fir Filter
 # =============================================================================
 
-def _signal_filter_fir(signal, sampling_rate, lowcut, highcut, window_size='default'):
+def _signal_filter_fir(signal, sampling_rate, lowcut, highcut, numtaps, window_type='hamming', freqz=False):
     """ Filter a signal using a FIR filter. """
 
-    try:
-        import mne
-    except ImportError:
-        raise ImportError(
-            "Package error: signal_filter(): the 'mne' module is required for this method to run. ",
-            "Please install it first (`pip install mne`).",
-        )
+    freqs, filter_type = _signal_filter_sanitize(lowcut, highcut, sampling_rate, normalize=False)
 
-    if isinstance(window_size, str):
-        window_size = "auto"
+    cutoff = freqs / (sampling_rate / 2)
+    taps = scipy.signal.firwin(numtaps, cutoff=cutoff, window=window_type, pass_zero=False)
 
-    if signal.dtype != np.float64:
-        signal = signal.astype(np.float64)
+    if freqz is True:
+        _signal_filter_freqz(b_fir=taps)
 
-    # mne requires input data shape (n_chans, n_times)
-    if signal.shape[0] > 256:
-        signal = np.transpose(signal)
-
-    filtered = mne.filter.filter_data(
-        signal,
-        sfreq=sampling_rate,
-        l_freq=lowcut,
-        h_freq=highcut,
-        method="fir",
-        fir_window="hamming",
-        filter_length=window_size,
-        l_trans_bandwidth="auto",
-        h_trans_bandwidth="auto",
-        phase="zero-double",
-        fir_design="firwin",
-        pad="reflect_limited",
-        verbose=False,
-    )
-
-    filtered = np.transpose(filtered)
-    print("filtered data shape: {}".format(filtered.shape))
+    filtered = scipy.signal.filtfilt(taps, a=1, x=signal, method='gust')
 
     return filtered
 
@@ -217,12 +185,13 @@ def _signal_filter_fir(signal, sampling_rate, lowcut, highcut, window_size='defa
 # =============================================================================
 
 def _signal_filter_sanitize(lowcut=None, highcut=None, sampling_rate=1000, normalize=False):
-    # 检查 lowcut 和 highcut 是否满足奈奎斯特定律
+    nyq = sampling_rate / 2
+    # 检查 lowcut 和 highcut 是否满足奈奎斯特定律, 且转化为归一化频率
     if lowcut is not None and highcut is not None:
         if sampling_rate < 2 * np.nanmax(np.array([lowcut, highcut], dtype=np.float64)):
             raise ValueError(
                 "Digital filter critical frequencies "
-                "must be 0 < Wn < fs/2 (fs={} -> fs/2={})".format(sampling_rate, sampling_rate / 2)
+                "must be 0 < Wn < fs/2 (fs={} -> fs/2={})".format(sampling_rate, nyq)
             )
 
     # 用 None 替代 lowcut 和 highcut
@@ -251,29 +220,68 @@ def _signal_filter_sanitize(lowcut=None, highcut=None, sampling_rate=1000, norma
     return freqs, filter_type
 
 
-def _signal_filter_freqz(b, a=1, worN=512, whole=False, plot=None, fs=6.283185307179586, include_nyquist=False):
-    """ show filter frequency response """
+def _signal_filter_freqz(b_iir=None, a_iir=None, b_fir=None, worN=512, fs=6.283185307179586):
+    """ Show IIR and FIR filter frequency responses """
 
-    w, h = freqz(b, a, worN, fs=fs)
-    fig, ax1 = plt.subplots()
-    ax1.set_title('Digital filter frequency response')
-    ax1.plot(w, 20 * np.log10(abs(h)), 'b')
-    ax1.set_ylabel('Amplitude [dB]', color='b')
-    ax1.set_xlabel('Frequency [rad/sample]')
-    ax2 = ax1.twinx()
-    angles = np.unwrap(np.angle(h))
-    ax2.plot(w, angles, 'g')
-    ax2.set_ylabel('Angle (radians)', color='g')
-    ax2.grid(True)
-    ax2.axis('tight')
+    fig, ax1 = plt.subplots(2, 1,figsize=(8, 6))
+    fig.tight_layout()
+    plt.suptitle('Digital filter frequency response')
 
+    if b_iir is not None and a_iir is not None:
+        # Compute frequency responses
+        w_iir, h_iir = freqz(b_iir, a_iir, worN, fs=fs)
+        # Plot IIR filter response
+        ax1[0].plot(w_iir, 20 * np.log10(np.maximum(abs(h_iir), 1e-10)), 'b', label='IIR Filter')
+        ax1[1].plot(w_iir, np.unwrap(np.angle(h_iir)) * 180 / np.pi, color='green')
+
+    elif b_iir is not None:
+
+        w_fir, h_fir = freqz(b_fir, worN, fs=fs)
+        # Plot FIR filter response
+        ax1[0].plot(w_fir, 20 * np.log10(np.maximum(abs(h_fir), 1e-10)), 'b', label='IIR Filter')
+        ax1[0].plot(w_fir, 20 * np.log10(abs(h_fir)), 'b', label='IIR Filter')
+        ax1[1].plot(w_fir, np.unwrap(np.angle(h_fir)) * 180 / np.pi, color='green')
+
+    ax1[0].grid(True)
+    ax1[0].set_title("Frequency Response")
+    ax1[0].set_ylabel("Amplitude (dB)", color='blue')
+    ax1[1].set_title("Angle Response")
+    ax1[1].set_ylabel("Angle (degrees)", color='green')
+    ax1[1].set_xlabel("Frequency (Hz)")
+    ax1[1].grid(True)
     plt.show(block=True)
 
 
-# if __name__ == '__main__':
-#     from data.load_emg_data import load_emg_data
-#
-#     data = load_emg_data('emg')
-#     filtered = signal_filter(data, sampling_rate=1000, lowcut=20, highcut=350, method='butter', order=4,
-#                              powerline=50, show=True, f0=50, Q=45)
+def _signal_filtered_plot(signal, filtered):
+    """
+    plot filtered data
+    """
+    if signal.shape[0] > 10000:
+        signal_len = 10000
+    else:
+        signal_len = signal.shape[0]
 
+    signal = np.atleast_2d(signal)
+    num_channels = signal.shape[1]
+
+    fig, axes = plt.subplots(num_channels, 1, figsize=(18, 6 * num_channels), sharex=True)
+
+    if num_channels == 1:
+        axes = [axes]
+
+    for i, ax in enumerate(axes):
+        ax.plot(signal[0:signal_len, i], color='b')
+        ax.plot(filtered[0:signal_len, i], color='red', alpha=0.9)
+        ax.set_title("EMG Channel {}".format(i + 1))
+
+    plt.tight_layout()
+    plt.show()
+
+
+if __name__ == '__main__':
+    from data.load_emg_data import load_emg_data
+
+    data = load_emg_data('emg')
+
+    filtered = signal_filter(data, sampling_rate=1000, lowcut=2, highcut=250, method='butter_ba', order=4,
+                             show=False, freqz=True)
