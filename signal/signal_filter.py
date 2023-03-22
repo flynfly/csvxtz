@@ -277,11 +277,11 @@ def _signal_filtered_plot(signal, filtered):
     plt.tight_layout()
     plt.show()
 
-
-if __name__ == '__main__':
-    from data.load_emg_data import load_emg_data
-
-    data = load_emg_data('emg')
-
-    filtered = signal_filter(data, sampling_rate=1000, lowcut=2, highcut=250, method='butter_ba', order=4,
-                             show=False, freqz=True)
+#
+# if __name__ == '__main__':
+#     from data.load_emg_data import load_emg_data
+#
+#     data = load_emg_data('emg')
+#
+#     filtered = signal_filter(data, sampling_rate=1000, lowcut=2, highcut=250, method='butter_ba', order=4,
+#                              show=False, freqz=True)
