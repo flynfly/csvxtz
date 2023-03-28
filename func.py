@@ -22,7 +22,7 @@ from PyQt5.QtWidgets import *
 from scipy.fftpack import fft
 from scipy import signal
 
-from signal import signal_filter
+from signal import signal_filter,signal_utils
 
 matplotlib.use("Qt5Agg")  # 声明使用QT5
 
@@ -32,8 +32,9 @@ class MyFigure(FigureCanvas):
         self.fig = Figure(figsize=(width, height), dpi=dpi)
 
         super(MyFigure,self).__init__(self.fig)
-        self.axe=self.fig.add_subplot
         # self.fig.tight_layout()
+
+
 
 
 class ParaDialog(QtWidgets.QDialog):
@@ -71,7 +72,7 @@ class CheckDialog(QtWidgets.QDialog):
 
 class MainWin(QMainWindow):
     dir_name = ""
-    samp_freq = 1259.259  # 采样率
+    samp_freq = 2000   # 采样率1259.259
     fft_num=0
     channels=1
     flag=''
@@ -89,7 +90,8 @@ class MainWin(QMainWindow):
         self.F0 = MyFigure(width=30, height=20, dpi=50)
 
         for i in range(1,self.channels+1):
-            self.F0.axe(self.channels,1,i).set_title("channel %d"%i)
+            ax=self.F0.fig.add_subplot(self.channels,1,i)
+            ax.set_title("channel %d"%i)
         self.F0.fig.tight_layout()
         self.gridlayout = QGridLayout(self.ui.groupBox)  # 继承容器groupBox
         self.gridlayout.addWidget(self.F0, 0, 1)
@@ -103,18 +105,16 @@ class MainWin(QMainWindow):
                 skip=skip+1
                 continue
             else:
-                self.F.axe(self.channels-len(ignore), 1, i-skip).set_title("channel %d" % (i))
-                self.F.axe(self.channels-len(ignore), 1, i-skip).plot(np.arange(npdata.shape[0]), 1000 * npdata[:, i - 1])
-                print('subplot(i):%d'%i)
-            # self.F.axe(10,1,i).plot(tempcsv["X [s]"], 1000 * tempcsv["Avanti sensor %d: EMG %d [V]" % (i, i)])
+                ax=self.F.fig.add_subplot(self.channels-len(ignore), 1, i-skip)
+                ax.set_title("channel %d"%i)
+                ax.plot(np.arange(npdata.shape[0]), 1000 * npdata[:, i - 1])
+            # self.F.fig.add_subplot(10,1,i).plot(tempcsv["X [s]"], 1000 * tempcsv["Avanti sensor %d: EMG %d [V]" % (i, i)])
         self.F.fig.tight_layout()
         self.gridlayout.addWidget(self.F, 0, 1)
         np.save(self.dir_name +'temp/'+ 'nptemp.npy', npdata)
         self.ui.menu_savefile.setEnabled(1)
         self.ui.pushButton.setEnabled(1)
         self.ui.action_4.setEnabled(1)
-
-        print('channels:',self.channels)
 
     def delImage(self):
         self.gridlayout.addWidget(self.F0, 0, 1)
@@ -202,7 +202,7 @@ class MainWin(QMainWindow):
         self.dialog = ParaDialog()
         items1 = ('50', '100', '200')
         self.dialog.ui.comboBox.addItems(['butterworth', 'fir'])
-        self.dialog.ui.lineEdit_1.setText("1000")
+        self.dialog.ui.lineEdit_1.setText("2000")
         self.dialog.ui.label_1.setText("滤波类型")
         self.dialog.ui.label_2.setText("采样率")
         self.dialog.ui.label_3.setText("下截止频率")
@@ -238,8 +238,8 @@ class MainWin(QMainWindow):
         self.F = MyFigure(width=30, height=20, dpi=50)
         for i in range(1, self.channels+1):
             ps[:, i - 1] = ss[:, i] ** 2 / self.fft_num
-            self.F.axe(self.channels, 1, i).set_title("channel %d" % i)
-            self.F.axe(self.channels, 1, i).plot(20 * np.log10(ps[:self.fft_num // 2, i - 1]))
+            self.F.fig.add_subplot(self.channels, 1, i).set_title("channel %d" % i)
+            self.F.fig.add_subplot(self.channels, 1, i).plot(20 * np.log10(ps[:self.fft_num // 2, i - 1]))
 
         self.gridlayout.addWidget(self.F, 0, 1)
 
@@ -254,8 +254,8 @@ class MainWin(QMainWindow):
             cor_X[:, i - 1] = fft(cor_x[:, i - 1], self.fft_num)
             ps_cor[:, i - 1] = np.abs(cor_X[:, i - 1])
             ps_cor[:, i - 1] = ps_cor[:, i - 1] / np.max(ps_cor[:, i - 1])
-            self.F.axe(self.channels, 1, i).set_title("channel %d" % i)
-            self.F.axe(self.channels, 1, i).plot(20 * np.log10(ps_cor[:self.fft_num // 2],i-1))
+            self.F.fig.add_subplot(self.channels, 1, i).set_title("channel %d" % i)
+            self.F.fig.add_subplot(self.channels, 1, i).plot(20 * np.log10(ps_cor[:self.fft_num // 2],i-1))
         self.gridlayout.addWidget(self.F, 0, 1)
 
     def cut_data(self):
@@ -284,8 +284,8 @@ class MainWin(QMainWindow):
         for i in range(1, self.channels+1):
             ss[:, i - 1] = fft(npdata[:, i-1], self.fft_num)
             ss[:, i - 1] = np.abs(ss[:, i - 1])
-            self.F.axe(self.channels, 1, i).set_title("channel %d" % i)
-            self.F.axe(self.channels, 1, i).plot(20 * np.log10(ss[:self.fft_num // 2, i - 1]))
+            self.F.fig.add_subplot(self.channels, 1, i).set_title("channel %d" % i)
+            self.F.fig.add_subplot(self.channels, 1, i).plot(20 * np.log10(ss[:self.fft_num // 2, i - 1]))
 
         self.gridlayout.addWidget(self.F, 0, 1)
         self.ui.menu_savefile.setEnabled(0)
