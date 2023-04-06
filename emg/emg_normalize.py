@@ -6,7 +6,7 @@ Date:2023/3/16 11:01
 Desc: 幅度和时间标准化
 """
 import numpy as np
-from signal.signal_utils import signal_epoch, signal_processed_plot, signal_window_overlap
+from Mysignal.signal_utils import signal_epoch, signal_processed_plot, signal_window_overlap
 
 
 def emg_normalized(epoch,
@@ -20,8 +20,8 @@ def emg_normalized(epoch,
 
     Parameters
     ----------
-    signal : float32
-        input multichannel signal
+    Mysignal : float32
+        input multichannel Mysignal
     left  : int
         left index
     right : int
@@ -86,7 +86,7 @@ def _emg_normalized_avg(epoch):
 
     #
     if np.all(np.equal(np.round(mean), 0)):
-        print("The average of each channel of input signal equals ZERO")
+        print("The average of each channel of input Mysignal equals ZERO")
         normalized = epoch
     else:
         # Normalize the epoch by the maximum value

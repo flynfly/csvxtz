@@ -7,7 +7,6 @@ from tkinter import *
 import tkinter.filedialog
 from scipy.fftpack import fft, fftshift, ifft
 from scipy.fftpack import fftfreq
-import untitled0
 
 root = Tk()
 root.geometry("500x500")
@@ -65,7 +64,7 @@ def filting_notch(raw):
     notch_freq = 50.0  # 工频
     quality_factor = 30.0  # Quality factor
 
-    # Design a notch filter using signal.iirnotch
+    # Design a notch filter using Mysignal.iirnotch
     b_notch, a_notch = signal.iirnotch(notch_freq, quality_factor, samp_freq)
     for i in range(1,11):
         raw["Avanti sensor %d: EMG %d [V]"%(i,i)]=signal.filtfilt(b_notch, a_notch, raw["Avanti sensor %d: EMG %d [V]"%(i,i)])

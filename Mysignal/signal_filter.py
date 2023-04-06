@@ -3,7 +3,7 @@
 
 Author:Jayleen
 Date:2023/3/8 9:34
-Desc: signal filter
+Desc: Mysignal filter
 """
 import matplotlib
 import numpy as np
@@ -17,14 +17,14 @@ from scipy.signal import filtfilt, iirnotch, freqz
 def signal_filter(signal, sampling_rate=1000, lowcut=None, highcut=None, method='',
                   order=2, numtaps=81, window_type='hamming',show=False, f0=50, Q=45, freqz=False):
     """
-    Filter the input signal using the specified method and parameters.
+    Filter the input Mysignal using the specified method and parameters.
 
     Parameters
     ----------
     signal : ndarray
-        Input signal to be filtered.
+        Input Mysignal to be filtered.
     sampling_rate : int, optional
-        The sampling rate of the signal in Hz, default is 1000 Hz.
+        The sampling rate of the Mysignal in Hz, default is 1000 Hz.
     lowcut : float, optional
         The lower cutoff frequency for the filter, default is None (no lowcut).
     highcut : float, optional
@@ -38,7 +38,7 @@ def signal_filter(signal, sampling_rate=1000, lowcut=None, highcut=None, method=
     window_type : str, optional
         The type of window to use for FIR filters, default is 'hamming'.
     show : bool, optional
-        If True, plot the filtered signal, default is False (no plot).
+        If True, plot the filtered Mysignal, default is False (no plot).
     f0 : int, optional
         The frequency for the notch filter, default is 50 Hz.
     Q : int, optional
@@ -49,7 +49,7 @@ def signal_filter(signal, sampling_rate=1000, lowcut=None, highcut=None, method=
     Returns
     -------
     filtered : ndarray
-        The filtered signal using the specified method and parameters.
+        The filtered Mysignal using the specified method and parameters.
     """
     method = method.lower()  # 将 method str 转成小写
 
@@ -97,16 +97,16 @@ def _signal_filter_powerline(signal, sampling_rate, powerline=50):
 
 def _signal_filter_iirnotch(signal, sampling_rate, f0, Q, freqz=False):
     """
-    Apply a second-order narrow bandwidth notch filter to the input signal.
+    Apply a second-order narrow bandwidth notch filter to the input Mysignal.
 
     Parameters
     ----------
     signal : ndarray
-        Input signal to be filtered, with dtype float64.
+        Input Mysignal to be filtered, with dtype float64.
     sampling_rate : int
-        The sampling rate of the signal in Hz.
+        The sampling rate of the Mysignal in Hz.
     f0 : int
-        The frequency to be removed (notch frequency) from the signal.
+        The frequency to be removed (notch frequency) from the Mysignal.
     Q : int
         The quality factor of the notch filter, representing the bandwidth.
         45/55/65 recommended
@@ -114,7 +114,7 @@ def _signal_filter_iirnotch(signal, sampling_rate, f0, Q, freqz=False):
     Returns
     -------
     filtered : ndarray
-        The signal after applying the notch filter.
+        The Mysignal after applying the notch filter.
 
     Optional
     --------
@@ -165,7 +165,7 @@ def _signal_filter_butterworth_ba(signal, sampling_rate, lowcut, highcut, order,
 # =============================================================================
 
 def _signal_filter_fir(signal, sampling_rate, lowcut, highcut, numtaps, window_type='hamming', freqz=False):
-    """ Filter a signal using a FIR filter. """
+    """ Filter a Mysignal using a FIR filter. """
 
     freqs, filter_type = _signal_filter_sanitize(lowcut, highcut, sampling_rate, normalize=False)
 

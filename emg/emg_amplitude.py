@@ -7,7 +7,7 @@ Desc: 肌电时域分析模块
 """
 import numpy as np
 
-from signal.signal_utils import signal_window_overlap, signal_processed_plot
+from Mysignal.signal_utils import signal_window_overlap, signal_processed_plot
 
 
 def emg_amplitude(signal,
@@ -145,7 +145,7 @@ def _emg_amplitude_iemg(signal, N):
     """
     Integrate EMG (iEMG) ,default without overlapping window
     """
-    # Create a sliding window view of the signal
+    # Create a sliding window view of the Mysignal
     sliding_view = np.lib.stride_tricks.sliding_window_view(signal, window_shape=(N, 1), axis=(0, 1))[::N]
 
     # Calculate the absolute sum (integral) of each window
@@ -177,7 +177,7 @@ def _emg_amplitude_std(signal, N, step=None):
     """
     if step is None:
         step = N
-    # Create a sliding window view of the signal
+    # Create a sliding window view of the Mysignal
     sliding_view = np.lib.stride_tricks.sliding_window_view(signal, window_shape=(N, 1), axis=(0, 1))[::step]
 
     std = np.std(sliding_view, axis=2, ddof=1).reshape(-1, signal.shape[1])  # unbiased standard deviation
@@ -191,7 +191,7 @@ def _emg_amplitude_var(signal, N, step=None):
     """
     if step is None:
         step = N
-    # Create a sliding window view of the signal
+    # Create a sliding window view of the Mysignal
     sliding_view = np.lib.stride_tricks.sliding_window_view(signal, window_shape=(N, 1), axis=(0, 1))[::step]
 
     var = np.var(sliding_view, axis=2, ddof=1).reshape(-1, signal.shape[1])  # unbiased variance
@@ -203,7 +203,7 @@ if __name__ == '__main__':
     # 测试
 
     from data.load_emg_data import load_emg_data
-    from signal.signal_utils import signal_epoch
+    from Mysignal.signal_utils import signal_epoch
     import time
 
     data = load_emg_data()

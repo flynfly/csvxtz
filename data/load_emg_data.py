@@ -9,13 +9,13 @@ Desc: 加载 NinaPro DB2 数据集
 import os.path
 from pprint import pprint
 from scipy.io import loadmat
-# from signal import signal_filter
+# from Mysignal import signal_filter
 
 
 def load_emg_data(
         datatype='emg'):
     """
-    EMG signal from NinaPro dataset DB2
+    EMG Mysignal from NinaPro dataset DB2
 
     Parameters
     ----------
