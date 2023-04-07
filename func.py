@@ -117,11 +117,15 @@ class MainWin(QMainWindow):
 
 
 
-        self.gridlayout = QGridLayout(self.ui.groupBox)  # 继承容器groupBox
+        self.gridlayout = QGridLayout(self.ui.widget21)
         self.F = MyFigure(width=30, height=20, dpi=50)
-        self.toolbar = NavigationToolbar(self.F, self)
-        self.gridlayout.addWidget(self.toolbar, 0, 0)
         self.gridlayout.addWidget(self.F,1,0)
+
+        self.toolbar = NavigationToolbar(self.F, self)
+        self.addToolBar(self.toolbar)
+        self.toolBarArea(self.toolbar)
+
+
 
         empty = np.zeros((1, 1), dtype=float)
         self.plottingEMG(empty)
@@ -129,6 +133,10 @@ class MainWin(QMainWindow):
         self.ui.menu_savefile.setEnabled(0)
         self.ui.pushButton.setEnabled(0)
         self.ui.action_4.setEnabled(0)
+
+        self.ui.plainTextEdit.appendPlainText("就绪")
+        self.ui.statusbar.showMessage('就绪')
+
         # self.F0 = MyFigure(width=30, height=20, dpi=50)
         #
         # for i in range(1,self.channels+1):
@@ -137,7 +145,7 @@ class MainWin(QMainWindow):
         # self.F0.fig.tight_layout()
 
         #
-        # self.toolbar0 = NavigationToolbar(self.F0, self)
+
         # self.gridlayout.addWidget(self.toolbar0, 0, 0)
         # self.gridlayout.addWidget(self.F0, 1, 0)
 
@@ -156,9 +164,11 @@ class MainWin(QMainWindow):
             # self.F.fig.add_subplot(10,1,i).plot(tempcsv["X [s]"], 1000 * tempcsv["Avanti sensor %d: EMG %d [V]" % (i, i)])
         F.fig.tight_layout()
         toolbar = NavigationToolbar(F, self)
-        self.gridlayout.replaceWidget(self.toolbar,toolbar)
+        self.removeToolBar(self.toolbar)
+        self.toolbar = toolbar
+        self.addToolBar(self.toolbar)
+        self.toolBarArea(self.toolbar)
         self.gridlayout.replaceWidget(self.F,F)
-        self.toolbar=toolbar
         self.F=F
 
         np.save(self.dir_name +'temp/'+ 'nptemp.npy', npdata)
@@ -166,19 +176,22 @@ class MainWin(QMainWindow):
         self.ui.pushButton.setEnabled(1)
         self.ui.action_4.setEnabled(1)
 
-
+        self.ui.statusbar.showMessage('已显示')
 
     def savedata(self):
         filename,_ = QFileDialog.getSaveFileName(self,'save file',directory=self.dir_name+'data/'+'*.npy',filter='(*.npy)')
         if filename and filename.endswith('.npy'):
             shutil.copy(self.dir_name+'temp/nptemp.npy', filename)
+            self.ui.plainTextEdit.appendPlainText("数据已保存到:\n"+filename)
+            self.ui.statusbar.showMessage('已保存')
         else:
-            print('未保存')
+            self.ui.plainTextEdit.appendPlainText("未保存")
+            self.ui.statusbar.showMessage('未保存')
 
 
 
     def data2show(self,file_name):
-        print("选择的数据文件：" + file_name)
+        self.ui.plainTextEdit.appendPlainText("选择的数据文件：\n" + file_name)
         if file_name.endswith('.csv'):
             rawcsv = pd.read_csv(file_name, encoding="unicode_escape", header=494)
             # 选择第0个column和以“[V]”结尾的column
@@ -208,13 +221,14 @@ class MainWin(QMainWindow):
         if file_name:
             self.data2show(file_name)
         else:
-            print("未选择")
+            self.ui.plainTextEdit.appendPlainText("未选择")
+            self.ui.statusbar.showMessage('未选择')
 
 
     def showplot(self,filename,npdata):
         self.plottingEMG(npdata)
         self.flag = 'csv2np'
-        print("show over")
+        self.ui.statusbar.showMessage('已加载文件')
 
         dirpos = filename.rfind('/data')
         self.dir_name = filename[:dirpos + 1]
@@ -311,8 +325,8 @@ class MainWin(QMainWindow):
         # np.save('cuttemp.npy',cut)
         self.plottingEMG(cut)
         self.flag='cut'
-        print('总点数：'+str(total_size)+'\n'+'裁剪后起始点：'+str(int(total_size*low_0/99)))
-        print("cut done")
+        self.ui.plainTextEdit.appendPlainText('裁剪前总点数：'+str(total_size)+'\n'+'裁剪后起始点：'+str(int(total_size*low_0/99)))
+
         
 
     def fft_data(self):
@@ -335,7 +349,6 @@ class MainWin(QMainWindow):
         self.ui.menu_savefile.setEnabled(0)
 
     def on_listWidgetItemDoubleClicked(self, item):
-        print("Double clicked item:", item.text())
         self.data2show(self.dir_name+'data/'+item.text())
 
 def main():
