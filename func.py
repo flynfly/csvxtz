@@ -41,8 +41,19 @@ class MyFigure(FigureCanvas):
 class ParaDialog(QtWidgets.QDialog):
     def __init__(self):
         super().__init__()
+        self.layout = QtWidgets.QGridLayout()
         self.ui = paraDialog.Ui_Dialog()
+        self.setLayout(self.layout)
         self.ui.setupUi(self)
+        self.layout.addWidget(self.ui.label_1,0,0)
+        self.layout.addWidget(self.ui.comboBox, 0, 1)
+        self.layout.addWidget(self.ui.label_2, 1, 0)
+        self.layout.addWidget(self.ui.lineEdit_1, 1, 1)
+        self.layout.addWidget(self.ui.label_3, 2, 0)
+        self.layout.addWidget(self.ui.lineEdit_2, 2, 1)
+        self.layout.addWidget(self.ui.label_4, 3, 0)
+        self.layout.addWidget(self.ui.lineEdit_3, 3, 1)
+        self.layout.addWidget(self.ui.buttonBox, 15, 1)
     def accept(self):
         super().accept()
 
@@ -216,7 +227,7 @@ class MainWin(QMainWindow):
     def openfile(self):
         options = QFileDialog.Options()
         options |= QFileDialog.ReadOnly
-        file_name, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", self.dir_name+'data/'
+        file_name, _ = QFileDialog.getOpenFileName(self, "选择要打开的数据文件", self.dir_name+'data/'
                                                    ,"All Data (*.npy *.csv *.mat);;npy Data (*.npy);;csv Data (*.csv);;mat Data (*.mat)"
                                                    , options=options)
         if file_name:
@@ -278,6 +289,59 @@ class MainWin(QMainWindow):
             filted=signal_filter.signal_filter(data,self.samp_freq,low,high,method)
             self.plottingEMG(filted)
 
+
+    def tech1(self):
+        data=np.load(self.dir_name + 'temp/nptemp.npy')
+        label_5 = QtWidgets.QLabel()
+        lineEdit_4 = QtWidgets.QLineEdit()
+        self.dialog = ParaDialog()
+        items1 = ('')
+        self.dialog.ui.comboBox.addItems([''])
+        self.dialog.ui.lineEdit_1.setText("2000")
+        self.dialog.ui.label_1.setText("参数1")
+        self.dialog.ui.label_2.setText("参数2")
+        self.dialog.ui.label_3.setText("参数3")
+        self.dialog.ui.label_4.setText("参数4")
+        label_5.setText("功能1")
+        self.dialog.layout.addWidget(label_5,3,0)
+        self.dialog.layout.addWidget(label_5, 4, 0)
+        self.dialog.layout.addWidget(lineEdit_4, 4, 1)
+        self.plottingEMG(data)
+        if self.dialog.exec_():
+            method=self.dialog.ui.comboBox.currentText()
+            self.samp_freq=int(self.dialog.ui.lineEdit_1.text())
+            low = float(self.dialog.ui.lineEdit_2.text())
+            high = float(self.dialog.ui.lineEdit_3.text())
+            filted=signal_filter.signal_filter(data,self.samp_freq,low,high,method)
+            self.plottingEMG(filted)
+
+    def tech2(self):
+        data=np.load(self.dir_name + 'temp/nptemp.npy')
+        label_5 = QtWidgets.QLabel()
+        lineEdit_4 = QtWidgets.QLineEdit()
+        self.dialog = ParaDialog()
+        items1 = ('')
+        self.dialog.ui.comboBox.addItems([''])
+        self.dialog.ui.lineEdit_1.setText("2000")
+        self.dialog.ui.label_1.setText("参数1")
+        self.dialog.ui.label_2.setText("参数2")
+        self.dialog.ui.label_3.setText("参数3")
+        self.dialog.ui.label_4.setText("参数4")
+        label_5.setText("功能2")
+        self.dialog.layout.addWidget(label_5,3,0)
+        self.dialog.layout.addWidget(label_5, 4, 0)
+        self.dialog.layout.addWidget(lineEdit_4, 4, 1)
+
+
+        self.plottingEMG(data)
+        if self.dialog.exec_():
+            method=self.dialog.ui.comboBox.currentText()
+            self.samp_freq=int(self.dialog.ui.lineEdit_1.text())
+            low = float(self.dialog.ui.lineEdit_2.text())
+            high = float(self.dialog.ui.lineEdit_3.text())
+            filted=signal_filter.signal_filter(data,self.samp_freq,low,high,method)
+            self.plottingEMG(filted)
+
     def selectChannel(self):
         data = np.load(self.dir_name + 'temp/nptemp.npy')
         self.dialog = CheckDialog(self.dir_name)
@@ -327,6 +391,8 @@ class MainWin(QMainWindow):
         self.plottingEMG(cut)
         self.flag='cut'
         self.ui.plainTextEdit.appendPlainText('裁剪前总点数：'+str(total_size)+'\n'+'裁剪后起始点：'+str(int(total_size*low_0/99)))
+        self.ui.horizontalSlider.setValue(0)
+        self.ui.horizontalSlider_2.setValue(0)
 
         
 
