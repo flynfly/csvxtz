@@ -135,6 +135,7 @@ class Ui_mainWindow(object):
         self.action_5 = QtWidgets.QAction(mainWindow)
         self.action_6 = QtWidgets.QAction(mainWindow)
 
+
         self.menu.addAction(self.menu_openfile)
         self.menu.addAction(self.menu_savefile)
         self.menu_4.addSeparator()
@@ -153,7 +154,8 @@ class Ui_mainWindow(object):
         self.menubar.addAction(self.menu_3.menuAction())
         self.menubar.addAction(self.menu_4.menuAction())
         self.menubar.addAction(self.menu_5.menuAction())
-        self.menubar.addAction(self.menu_6.menuAction())
+        self.action_h = self.menubar.addAction('帮助')
+
 
         self.retranslateUi(mainWindow)
         self.menu_openfile.triggered.connect(mainWindow.openfile)
@@ -168,6 +170,7 @@ class Ui_mainWindow(object):
         self.pushButton.clicked.connect(mainWindow.cut_data)
         self.listWidget.itemDoubleClicked.connect(mainWindow.on_listWidgetItemDoubleClicked)
         self.action_4.triggered.connect(mainWindow.selectChannel)
+        self.action_h.triggered.connect(mainWindow.helper)
         QtCore.QMetaObject.connectSlotsByName(mainWindow)
 
     def retranslateUi(self, mainWindow):

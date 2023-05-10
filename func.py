@@ -358,28 +358,23 @@ class MainWin(QMainWindow):
         ss = ss0.to_numpy()
 
         ps = np.zeros((self.fft_num, self.channels))
-        self.F = MyFigure(width=30, height=20, dpi=50)
         for i in range(1, self.channels+1):
             ps[:, i - 1] = ss[:, i] ** 2 / self.fft_num
-            self.F.fig.add_subplot(self.channels, 1, i).set_title("channel %d" % i)
-            self.F.fig.add_subplot(self.channels, 1, i).plot(20 * np.log10(ps[:self.fft_num // 2, i - 1]))
-
-        self.gridlayout.addWidget(self.F, 0, 1)
+            ps[:, i - 1] = 20 * np.log10(ps[:self.fft_num, i - 1])
+        self.plottingEMG(ps[:self.fft_num // 2, :])
 
     def cor_power(self):
         data = pd.read_csv(self.dir_name + "csvtemp.csv")
         npdata = data.to_numpy()
 
         cor_x=cor_X=ps_cor = np.zeros((self.fft_num, self.channels))
-        self.F = MyFigure(width=30, height=20, dpi=50)
         for i in range(1, self.channels+1):
             cor_x[:, i - 1] = np.correlate(npdata[:, i + 1], npdata[:, i + 1], 'same')
             cor_X[:, i - 1] = fft(cor_x[:, i - 1], self.fft_num)
             ps_cor[:, i - 1] = np.abs(cor_X[:, i - 1])
             ps_cor[:, i - 1] = ps_cor[:, i - 1] / np.max(ps_cor[:, i - 1])
-            self.F.fig.add_subplot(self.channels, 1, i).set_title("channel %d" % i)
-            self.F.fig.add_subplot(self.channels, 1, i).plot(20 * np.log10(ps_cor[:self.fft_num // 2],i-1))
-        self.gridlayout.addWidget(self.F, 0, 1)
+            ps_cor[:, i - 1] = 20 * np.log10(ps_cor[:self.fft_num],i-1)
+        self.plottingEMG(ps_cor[:self.fft_num // 2, :])
 
     def cut_data(self):
         low_0=min(self.ui.horizontalSlider.value(),self.ui.horizontalSlider_2.value())
@@ -405,18 +400,26 @@ class MainWin(QMainWindow):
         npdata = np.load(self.dir_name +'temp/'+ "nptemp.npy")
 
         ss = np.zeros((self.fft_num, self.channels))
-        self.F = MyFigure(width=30, height=20, dpi=50)
         for i in range(1, self.channels+1):
             ss[:, i - 1] = fft(npdata[:, i-1], self.fft_num)
             ss[:, i - 1] = np.abs(ss[:, i - 1])
-            self.F.fig.add_subplot(self.channels, 1, i).set_title("channel %d" % i)
-            self.F.fig.add_subplot(self.channels, 1, i).plot(20 * np.log10(ss[:self.fft_num // 2, i - 1]))
+            ss[:,i-1]=20 * np.log10(ss[:self.fft_num, i - 1])
 
-        self.gridlayout.addWidget(self.F, 0, 1)
+        self.plottingEMG(ss[:self.fft_num//2,:])
         self.ui.menu_savefile.setEnabled(0)
 
     def on_listWidgetItemDoubleClicked(self, item):
         self.data2show(self.dir_name+'data/'+item.text())
+
+    def helper(self):
+        dialog = QtWidgets.QMessageBox()
+        dialog.setWindowTitle("帮助")
+        dialog.setText("\n表面肌电信号处理系统   v1.0     "+"\n\n2023  版权所有\n")
+        dialog.setIcon(QtWidgets.QMessageBox.Information)
+        dialog.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        dialog.setFixedSize(300, 200)  # 设置对话框的大小
+        dialog.exec_()
+
 
 def main():
     myapp = QApplication(sys.argv)
