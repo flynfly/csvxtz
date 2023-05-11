@@ -154,6 +154,7 @@ class Ui_mainWindow(object):
         self.menubar.addAction(self.menu_3.menuAction())
         self.menubar.addAction(self.menu_4.menuAction())
         self.menubar.addAction(self.menu_5.menuAction())
+        self.action_del = self.menubar.addAction('采集')
         self.action_h = self.menubar.addAction('帮助')
 
 
@@ -170,7 +171,9 @@ class Ui_mainWindow(object):
         self.pushButton.clicked.connect(mainWindow.cut_data)
         self.listWidget.itemDoubleClicked.connect(mainWindow.on_listWidgetItemDoubleClicked)
         self.action_4.triggered.connect(mainWindow.selectChannel)
+        self.action_del.triggered.connect(mainWindow.delsys)
         self.action_h.triggered.connect(mainWindow.helper)
+
         QtCore.QMetaObject.connectSlotsByName(mainWindow)
 
     def retranslateUi(self, mainWindow):
