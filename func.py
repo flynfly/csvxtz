@@ -26,6 +26,8 @@ from scipy import signal
 
 from Mysignal import signal_filter,signal_utils
 
+from DataCollector.CollectDataWindow import CollectDataWindow
+
 matplotlib.use("Qt5Agg")  # 声明使用QT5
 
 
@@ -375,6 +377,12 @@ class MainWin(QMainWindow):
             ps_cor[:, i - 1] = ps_cor[:, i - 1] / np.max(ps_cor[:, i - 1])
             ps_cor[:, i - 1] = 20 * np.log10(ps_cor[:self.fft_num],i-1)
         self.plottingEMG(ps_cor[:self.fft_num // 2, :])
+
+    def delsys(self):
+        print('delsys')
+        self.collectWindow = CollectDataWindow(self)
+        self.collectWindow.show()
+        self.setWindowState(QtCore.Qt.WindowMinimized)
 
     def cut_data(self):
         low_0=min(self.ui.horizontalSlider.value(),self.ui.horizontalSlider_2.value())
