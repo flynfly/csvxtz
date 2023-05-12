@@ -125,12 +125,6 @@ class CollectDataWindow(QWidget):
         self.SensorListBox.clicked.connect(self.sensorList_callback)
         buttonLayout.addWidget(self.SensorListBox)
 
-        #--- Home Button
-        button = QPushButton('Home', self)
-        button.setToolTip('Return to Start Menu')
-        button.objectName = 'Home'
-        button.clicked.connect(self.home_callback)
-        buttonLayout.addWidget(button)
 
         buttonPanel.setLayout(buttonLayout)
 
@@ -197,8 +191,6 @@ class CollectDataWindow(QWidget):
         self.reset_button.setEnabled(False)
         self.save_button.setEnabled(False)
 
-    def home_callback(self):
-        self.controller.showStartMenu()
 
     def sensorList_callback(self):
         curItem = self.SensorListBox.currentRow()
