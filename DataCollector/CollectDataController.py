@@ -46,7 +46,6 @@ class PlottingManagement():
         while self.pauseFlag is False:
             if len(self.emg_plot) >= 2:
                 incData = self.emg_plot.popleft()       # Data at time T-1
-
                 self.outData = list(np.asarray(incData, dtype='object')[tuple([self.dataStreamIdx])])
 
                 if self.dataStreamIdx and self.outData[0].size > 0:
@@ -100,9 +99,10 @@ class PlottingManagement():
 
     def Start_Callback(self):
         """Callback to start the data stream from Sensors"""
+
         self.pauseFlag = False
         if TrigBase.GetPipelineState() == 'Connected':
-
+            self.emg_data_storage.clear()
             TrigBase.Configure()
             self.sampleRates = [[] for i in range(self.SensorsFound)]
             self.samplesPerFrame = [[] for i in range(self.SensorsFound)]
@@ -158,6 +158,7 @@ class PlottingManagement():
 
     def Reset_Callback(self):
         TrigBase.ResetPipeline()
+
 
     #---------------------------------------------------------------------------------
     #---- Helper Functions

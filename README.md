@@ -1,57 +1,51 @@
-# DelsysAPI Python Example
+# DelsysAPI Python 示例
 
-This is an example Python GUI application that uses the DelsysAPI AeroPy Layer to demonstrate functionality that users can implement in their own code. This example allows a user to connect to the base station, pair new sensors, scan for paired sensors, then stream EMG data visualized by plots. 
+这是一个使用 DelsysAPI AeroPy 层的示例 Python GUI 应用程序，演示了用户可以在自己的代码中实现的功能。此示例允许用户连接到基站，配对新传感器，扫描已配对传感器，然后通过绘图显示 EMG 数据。
 
-This version has been tested using [Python 3.8.1](https://www.python.org/downloads/release/python-381/).
+此版本已在 [Python 3.8.1](https://www.python.org/downloads/release/python-381/) 上进行了测试。
 
-See [AeroPy Documentation](#AeroPy-Documentation) 
+查看 [AeroPy 文档](#AeroPy-文档) 
 
-## Getting Started
-1. Install Python here: [Python 3.8.1](https://www.python.org/downloads/release/python-381/).
-2. Navigate to the `Example-Applications/Python` base directory
-3. Install dependencies using `python -m pip install -r requirements.txt` 
--NOTE: PythonNet library is only supported up to python 3.8. 
-4. Open `/AeroPy/TrignoBase.py` and copy/paste the key/license strings provided by Delsys Inc. during system purchase. Contact [support](https://delsys.com/support/) if you have any issues.
-5. If you are using an IDE, set up your python interpreter/virtual environment from the settings.
-6. Make sure the Trigno base station or lite are plugged in, then Run `DelsysPythonDemo.py`
+## 入门
+1. 安装 Python：[Python 3.8.1](https://www.python.org/downloads/release/python-381/)。
+2. 导航到 `Example-Applications/Python` 基本目录
+3. 使用 `python -m pip install -r requirements.txt` 安装依赖项
+-注意：PythonNet 库仅支持到 python 3.8。
+4. 打开 `/AeroPy/TrignoBase.py` 并复制/粘贴 Delsys Inc. 在购买系统期间提供的密钥/许可证字符串。如果遇到任何问题，请联系 [支持](https://delsys.com/support/)。
+5. 如果您使用的是 IDE，请从设置中设置 Python 解释器/虚拟环境。
+6. 确保 Trigno 基站或 Lite 已插入，然后运行 `DelsysPythonDemo.py`
 
 
-## Usage Instructions
-Click on the `Collect Data` button on the Start Menu to bring up the Data Collection window. 
+## 使用说明
+单击开始菜单上的 `Collect Data` 按钮以打开数据收集窗口。
 
-Ensure that your Trigno system is connected to power and the PC via USB. Click the `Connect` button to connect the app to the station.  In your terminal you will see some log and initialization messages.
+确保您的 Trigno 系统已连接到电源和 PC 通过 USB。单击 `Connect` 按钮将应用程序连接到基站。在终端中，您将看到一些日志和初始化消息。
 
-Power on your sensor(s) by removing from the charge station and introducing a magnet. For convenience, the charge station has a magnet built in, under the "lock" symbol at the center of the case. If the sensor has not already been paired to the base, click the `Pair` button and introduce a magnet again to initiate a pair.
+通过从充电站取出并引入磁铁来打开传感器。为方便起见，充电站内置了一个磁铁，位于盒子中央的 "lock" 符号下方。如果传感器尚未与基站配对，单击 `Pair` 按钮并再次引入磁铁以启动配对。
 
-Click the `Scan` button. This will add your sensor to the application's sensor list. Highlight the sensor by clicking on it, then select its mode from the mode drop down menu. Setting modes is done to individual sensors, not all of them. If you want all of your sensors to be on the same mode, the code can be modified to achieve this. See [AeroPy Documentation](#AeroPy-Documentation) for more details.
+单击 `Scan` 按钮。这将将传感器添加到应用程序的传感器列表中。通过单击它来突出显示传感器，然后从模式下拉菜单中选择其模式。设置模式是针对单个传感器完成的，而不是所有传感器。如果您希望所有传感器都具有相同的模式，可以修改代码以实现此目的。有关更多详细信息，请参阅 [AeroPy 文档](#AeroPy-文档)。
 
-To begin the data stream and plotting, click the `Start` button. To stop the data stream and plotting, click the `Stop` button.
+要开始数据流和绘图，请单击 `Start` 按钮。要停止数据流和绘图，请单击 `Stop` 按钮。
 
-Click the `Reset Pipeline` button to return to the Connected pipeline state. NOTE: You must click reset pipeline after a data stream if you want to scan/pair/change modes. If you are using the same sensor configuration for another data stream, Start/Stop can be pressed continuously without a reset.
+单击 `Reset Pipeline` 按钮以返回已连接的管道状态。注意：如果您想要在数据流后扫描/配对/更改模式，您必须单击重置管道。如果您使用相同的传感器配置进行其他数据流，可以连续按下 Start/Stop 而无需重置。
 
-## Further Reference
-See the DelsysAPI Documentation [here](http://data.delsys.com/DelsysServicePortal/api/web-api/index.html).
+## 进一步参考
+请参阅 DelsysAPI 文档 [这里](http://data.delsys.com/DelsysServicePortal/api/web-api/index.html)。
 
 
 &nbsp;<br>
 
-# AeroPy Documentation
+# AeroPy 文档
 
-The DelsysAPI and AeroPy software is a development tool to be used in conjunction
-with the Trigno Wireless Biofeedback System. The DelsysAPI is not intended to perform assessment or
-diagnostic procedures. It is intended to be used as a software component of a third-party
-software application. The function of the API is to manage the transfer of data from the Trigno
-System to third-party software applications, and is designed to work exclusively with the Trigno
-System. AeroPy is a simplification layer of the DelsysAPI to facilitate easy setup for configuring and streaming from sensors.
-See the list of AeroPy commands below.
+DelsysAPI 和 AeroPy 软件是与 Trigno 无线生物反馈系统一起使用的开发工具。DelsysAPI 不是用于执行评估或诊断程序。它旨在用作第三方软件应用程序的软件组件。API 的功能是管理从 Trigno 系统传输数据到第三方软件应用程序，并专为 Trigno 系统设计。AeroPy 是 DelsysAPI 的简化层，便于配置和从传感器流式传输。请参阅以下 AeroPy 命令列表。
 
-## Setup (python)
+## 设置 (python)
 
-The `DelsysAPI.dll` must be inside of the project folder ie. resources/
+`DelsysAPI.dll` 必须位于项目文件夹内，例如 resources/
 
 ```python
 """
-This class creates an instance of the Trigno base. Put your key and license here.
+此类创建 Trigno 基站的实例。将您的密钥和许可证放在这里。
 """
 import clr
 clr.AddReference("/resources/DelsysAPI")
@@ -71,137 +65,134 @@ class TrignoBase():
 base = TrignoBase()
 TrigBase = base.BaseInstance
 ```
-Call TrignoBase class from your program script.
+从程序脚本调用 TrignoBase 类。
 
 ```python
     def Connect_Callback(self):
-        """Callback to connect to the base"""
+        """连接到基站的回调"""
         TrigBase.ValidateBase(key, license)
 ```
-Use TrigBase variable to call AeroPy functions. See all AeroPy methods below:
+使用 TrigBase 变量调用 AeroPy 函数。请参阅以下所有 AeroPy 方法：
 
-### Connecting to the Trigno Base/Lite
+### 连接到 Trigno Base/Lite
 ```C#
 public void ValidateBase(string key, string license)
 ```
-Initial call to the Trigno Base. Sets up a connection to the base using the user's key and license strings.
+首次调用 Trigno Base。使用用户的密钥和许可证字符串设置与基站的连接。
 
 &nbsp;<br>
 
-### Sensor Management
+### 传感器管理
 ```C#
 public Task ScanSensors()
 ```
-Scan for previously paired sensors (RF).
-Pipeline must be in the Off or Connected State to run this command 
+扫描先前配对的传感器 (RF)。
+管道必须处于关闭或连接状态才能运行此命令
 
 &nbsp;<br>  
 ```C#
 public void PairSensor()
 ```
-This sets the base into pairing mode, allowing for a user to pair a new sensor to the base.
-Pipeline must be in the Off or Connected State to run this command 
+将基站设置为配对模式，允许用户将新传感器配对到基站。
+管道必须处于关闭或连接状态才能运行此命令
 
 &nbsp;<br>  
 ```C#
 public bool SelectAllSensors()
 ```
-Selects all the sensors that have been found in the scan. If you only want to select a specific sensor, use SelectSensor method
+选择在扫描中找到的所有传感器。如果您只想选择特定传感器，请使用 SelectSensor 方法
 
 &nbsp;<br>  
 
 ```C#
 public void SelectSensor(int sensorNum)
 ```
-Selects the sensor for streaming at index `sensorNum`. Use SelectAllSensors() method to select all scanned sensors.
+选择位于索引 `sensorNum` 的传感器进行流式传输。使用 SelectAllSensors() 方法选择所有扫描到的传感器。
 
 &nbsp;<br>  
 ```C#
 public SensorTrignoRf GetSensorObject(int sensorNo)
 ```
-Get the sensor object of the sensor at the index sensorNo 
+获取索引为 sensorNo 的传感器的传感器对象
 
 &nbsp;<br>  
 ```C#
 public List<string> GetAllSampleModes()
 ```
-Get all of the sample modes that the sensors are currently set to.
+获取当前传感器设置的所有采样模式。
 
 &nbsp;<br>  
 
 ```C#
 public void SetSampleMode(int componentNum, string sampleMode)
 ```
-Sets the sample mode for the given sensor. Will set the sensor at index componentNum to the mode given by sampleMode
+设置给定传感器的采样模式。将索引为 componentNum 的传感器设置为 sampleMode 提供的模式。
 
 &nbsp;<br>  
 ```C#
 public string[] GetSensorNames()
 ```
-Return a string array of the names of the current sensors found in scan
+返回扫描中找到的当前传感器名称的字符串数组。
 
 &nbsp;<br>  
 ```C#
 public string[] AvailibleSensorModes(int sensorSelected)
 ```
-Return the list of sensor modes available to the sensor at index sensorSelected
+返回传感器在 sensorSelected 索引处可用的传感器模式列表。
 
 &nbsp;<br>  
 
-### Sensor Configuration (RF)
+### 传感器配置（RF）
 
 ```C#
 public void Configure()
 ```
-Default Configure method - Will configure pipeline for raw data output on all scanned sensors. Pipeline must be in the Off or Connected State. Pipeline will transition to Armed
+默认配置方法 - 将为所有扫描到的传感器配置原始数据输出的管道。管道必须处于关闭或连接状态。管道将转换为已布防
 
 &nbsp;<br>  
 
-### Data Collection Management (RF)
+### 数据收集管理（RF）
 
 ```C#
 public void Start()
 ```
-Starts Data Stream - Pipeline must be in the Armed state. Pipeline will transition to Running
+启动数据流 - 管道必须处于已布防状态。管道将转换为运行
 
 &nbsp;<br>  
 ```C#
 public bool CheckDataQueue()
 ```
-Called while in the Running state (live data collection) Returns true if there is new data in the internal data buffer that is ready to be extracted. If true, use `PollData()` to return the data structure.
+在运行状态（实时数据收集）中调用。如果内部数据缓冲区中有新数据准备好提取，则返回 true。如果为真，请使用 `PollData()` 返回数据结构。
 
 &nbsp;<br>  
 
 ```C#
 public Dictionary<Guid, List<double>> PollData()
 ```
-This retrieves the data from the data buffer after the `Start()` method is called. Every time this method is called it will return the data, then clear the internal data queue. The return type is a dictionary output where channel GUID is the key and the channel data is the value
+在调用 `Start()` 方法后，此方法从数据缓冲区检索数据。每次调用此方法时，它将返回数据，然后清除内部数据队列。返回类型是字典输出，其中通道 GUID 是键，通道数据是值。
 
 &nbsp;<br>  
 ```C#
 public void Stop()
 ```
-Stops Data Stream - Pipeline must be in the Running state. Pipeline will transition to Armed
+停止数据流 - 管道必须处于运行状态。管道将转换为已布防
 
 &nbsp;<br>  
 ```C#
 public void ResetPipeline()
 ```
-Resets (disarms) Pipeline - Pipeline must be in the Armed state. Pipeline will transition to Connected (Allows for users to call Scan/Pair after a collections is stopped)
+重置（解除布防）管道 - 管道必须处于已布防状态。管道将转换为连接（允许用户在收集停止后调用 Scan/Pair）
 
 &nbsp;<br>  
-### Helper Functions (RF Connection)
+### 辅助功能（RF 连接）
 
 ```C#
 public string GetPipelineState()
 ```
-Returns the current state of the RF pipeline
+返回 RF 管道的当前状态
 
 &nbsp;<br>  
 ```C#
 public int GetTotalPackets()
 ```
-Returns the total number of data packets collected from the current streaming session.
-
-
-
+返回从当前流式传输会话中收集的数据包总数。
