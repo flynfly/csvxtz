@@ -22,6 +22,10 @@ def signal_epoch(signal, left, right):
     return signal[left:right, :]
 
 
+# =============================================================================
+# plot
+# =============================================================================
+
 def signal_processed_plot(signal):
     """
     plot processed data
@@ -34,7 +38,7 @@ def signal_processed_plot(signal):
     signal = np.atleast_2d(signal)
     num_channels = signal.shape[1]
 
-    fig, axes = plt.subplots(num_channels, 1, figsize=(18, 6 * num_channels), sharex=True)
+    fig, axes = plt.subplots(num_channels, 1, figsize=(12, 3 * num_channels), sharex=True)
 
     if num_channels == 1:
         axes = [axes]
@@ -42,6 +46,26 @@ def signal_processed_plot(signal):
     for i, ax in enumerate(axes):
         ax.plot(signal[0:signal_len, i], color='b')
         ax.set_title("EMG Channel {}".format(i + 1))
+
+    plt.tight_layout()
+    plt.show()
+
+
+def _signal_plot_line(freqs, psd, values,method):
+    """
+    绘制功率谱及相应频率线
+    """
+    signal_len = psd.shape[0]
+    num_channels = psd.shape[1]
+    fig, axes = plt.subplots(num_channels, 1, figsize=(9, 4 * num_channels), squeeze=False)
+
+    for i, ax in enumerate(axes[:, 0]):
+        ax.plot(freqs,10*np.log10(psd[:,i]), color='b')
+        ax.axvline(values[i], color='r', linestyle='--', label=f'{method} = {values[i]:.2f}')
+        ax.set_ylabel("PSD (dB)",color='b')
+        ax.set_xlabel("Frequency (Hz)")
+        ax.set_title(f"EMG Channel {i + 1}")
+        ax.legend()
 
     plt.tight_layout()
     plt.show()

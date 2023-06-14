@@ -29,7 +29,7 @@ class GenericPlot(app.Canvas):
         app.Canvas.__init__(self, title='Use your wheel to zoom!',
                             keys='interactive', app='PyQt5')
         gloo.set_viewport(0, 0, *self.physical_size)
-        gloo.set_state(clear_color='black', blend=True,
+        gloo.set_state(clear_color='white', blend=True,
                        blend_func=('src_alpha', 'one_minus_src_alpha'))
         self.plot_interact_flag = True
         self.is_initialized = False

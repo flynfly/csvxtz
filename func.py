@@ -13,6 +13,8 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as Navigatio
 from matplotlib.figure import Figure
 
 import sys
+
+import emg.emg_amplitude
 from UI import appliedUI,paraDialog,checkDialog
 
 from PyQt5 import QtCore, QtGui,QtWidgets
@@ -292,30 +294,42 @@ class MainWin(QMainWindow):
             self.plottingEMG(filted)
 
 
-    def tech1(self):
+    def amp(self):
         data=np.load(self.dir_name + 'temp/nptemp.npy')
         label_5 = QtWidgets.QLabel()
         lineEdit_4 = QtWidgets.QLineEdit()
         self.dialog = ParaDialog()
         items1 = ('')
-        self.dialog.ui.comboBox.addItems([''])
-        self.dialog.ui.lineEdit_1.setText("2000")
-        self.dialog.ui.label_1.setText("参数1")
-        self.dialog.ui.label_2.setText("参数2")
-        self.dialog.ui.label_3.setText("参数3")
-        self.dialog.ui.label_4.setText("参数4")
-        label_5.setText("功能1")
-        self.dialog.layout.addWidget(label_5,3,0)
-        self.dialog.layout.addWidget(label_5, 4, 0)
-        self.dialog.layout.addWidget(lineEdit_4, 4, 1)
+        self.dialog.ui.comboBox.addItems(["RootMeanSquare",
+                                          "MeanAbsoluteValue",
+                                          "MovingAverage",
+                                          "IEMG",
+                                          "SSI",
+                                          "ZC",
+                                          "VAR",
+                                          "STD"])
+
+        self.dialog.ui.label_1.setText("方法")
+        self.dialog.ui.label_2.setText("窗长度")
+        self.dialog.ui.label_3.setText("窗口重叠")
+        self.dialog.ui.lineEdit_1.setText("0.1")
+        self.dialog.ui.label_4.setText("采样率")
+        self.dialog.ui.lineEdit_3.setText("2000")
+
+
         self.plottingEMG(data)
         if self.dialog.exec_():
             method=self.dialog.ui.comboBox.currentText()
-            self.samp_freq=int(self.dialog.ui.lineEdit_1.text())
-            low = float(self.dialog.ui.lineEdit_2.text())
-            high = float(self.dialog.ui.lineEdit_3.text())
-            filted=signal_filter.signal_filter(data,self.samp_freq,low,high,method)
-            self.plottingEMG(filted)
+            window_length = float(self.dialog.ui.lineEdit_1.text())
+            overlap = self.dialog.ui.lineEdit_2.text()
+            if overlap:
+                overlap=float(overlap)
+            else:
+                overlap=0.0
+            self.samp_freq = int(self.dialog.ui.lineEdit_3.text())
+
+            result=emg.emg_amplitude.emg_amplitude(data,method,window_length, overlap,show=False)
+            self.plottingEMG(result)
 
     def tech2(self):
         data=np.load(self.dir_name + 'temp/nptemp.npy')

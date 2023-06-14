@@ -5,16 +5,18 @@ Author:Jayleen
 Date:2023/3/7 17:53
 Desc: 肌电时域分析模块
 """
+import matplotlib
 import numpy as np
+from matplotlib import pyplot as plt
 
 from Mysignal.signal_utils import signal_window_overlap, signal_processed_plot
-
+matplotlib.use('TKAgg')
 
 def emg_amplitude(signal,
                   method,
                   window_length=0.1,
                   window_overlap=None,
-                  sampling_rate=1000,
+                  sampling_rate=2000,
                   show=False):
 
     """
@@ -51,8 +53,8 @@ def emg_amplitude(signal,
         result = _emg_amplitude_rms(signal, N, step)
     elif method in ["MeanAbsoluteValue", "MAV", "mav"]:
         result = _emg_amplitude_mav(signal, N, step)
-    elif method in ["MovingAverage", "MV", "mv"]:
-        result = _emg_amplitude_mv(signal, N, step)
+    elif method in ["MovingAverage", "MA", "ma"]:
+        result = _emg_amplitude_ma(signal, N, step)
     elif method in ["IEMG", "iemg"]:
         result = _emg_amplitude_iemg(signal, N)
     elif method in ["MAVS", "mavs"]:
@@ -109,14 +111,14 @@ def _emg_amplitude_mav(signal, N, step):
     return mav
 
 
-def _emg_amplitude_mv(signal, N, step):
+def _emg_amplitude_ma(signal, N, step):
     """
     Moving Average, 移动平均值
     """
     sliding_view = np.lib.stride_tricks.sliding_window_view(signal, window_shape=(N, 1), axis=(0, 1))[::step]
-    mv = np.mean(sliding_view, axis=2).reshape(-1, signal.shape[1])
+    ma = np.mean(sliding_view, axis=2).reshape(-1, signal.shape[1])
 
-    return mv
+    return ma
 
 
 def _emg_amplitude_mavs(signal, N, step):
@@ -145,7 +147,7 @@ def _emg_amplitude_iemg(signal, N):
     """
     Integrate EMG (iEMG) ,default without overlapping window
     """
-    # Create a sliding window view of the Mysignal
+    # Create a sliding window view of the signal
     sliding_view = np.lib.stride_tricks.sliding_window_view(signal, window_shape=(N, 1), axis=(0, 1))[::N]
 
     # Calculate the absolute sum (integral) of each window
@@ -162,8 +164,9 @@ def _emg_amplitude_zc(signal, N, step):
     sliding_view = np.lib.stride_tricks.sliding_window_view(signal, window_shape=(N, 1), axis=(0, 1))[::step]
 
     # Calculate the zero-crossing rate for each window
-    zc = np.greater(np.multiply(sliding_view[:-1], sliding_view[1:]), 0).astype(int)
-    zcr = (np.sum(zc, axis=2) / (N - 1)).reshape(-1, signal.shape[1])
+    # zc = np.greater(np.multiply(sliding_view[:-1], sliding_view[1:]), 0).astype(int)
+    zc  = np.abs(np.diff(np.sign(sliding_view),axis=2))
+    zcr = (np.sum(zc>0, axis=2) / (N - 1)).reshape(-1, signal.shape[1])
 
     return zcr
 
@@ -177,7 +180,7 @@ def _emg_amplitude_std(signal, N, step=None):
     """
     if step is None:
         step = N
-    # Create a sliding window view of the Mysignal
+    # Create a sliding window view of the signal
     sliding_view = np.lib.stride_tricks.sliding_window_view(signal, window_shape=(N, 1), axis=(0, 1))[::step]
 
     std = np.std(sliding_view, axis=2, ddof=1).reshape(-1, signal.shape[1])  # unbiased standard deviation
@@ -191,7 +194,7 @@ def _emg_amplitude_var(signal, N, step=None):
     """
     if step is None:
         step = N
-    # Create a sliding window view of the Mysignal
+    # Create a sliding window view of the signal
     sliding_view = np.lib.stride_tricks.sliding_window_view(signal, window_shape=(N, 1), axis=(0, 1))[::step]
 
     var = np.var(sliding_view, axis=2, ddof=1).reshape(-1, signal.shape[1])  # unbiased variance
@@ -200,20 +203,13 @@ def _emg_amplitude_var(signal, N, step=None):
 
 
 if __name__ == '__main__':
-    # 测试
-
     from data.load_emg_data import load_emg_data
     from Mysignal.signal_utils import signal_epoch
-    import time
 
     data = load_emg_data()
     data = data * 10e3  # unit mV
 
-    start = time.time()
-
-    epoch = signal_epoch(data, 0, data.shape[0])
-    result = emg_amplitude(data, method="zc",
-                           window_length=0.05, window_overlap=0.1,show=False)
-    end = time.time()
-    print(end - start)
-    print(result.shape)
+    epoch = signal_epoch(data[:,0], 0, data.shape[0])
+    emg = data[:,0:1]
+    result = emg_amplitude(data, method="zcr",
+                           window_length=0.1, window_overlap=0,show=False)
